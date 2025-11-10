@@ -94,7 +94,15 @@ export default function CoinsListScreen() {
           <TrendingList trendingCoins={mockTrendingCoins} />
 
           <View style={styles.comparisonSection}>
-            <CoinComparisonSelector />
+            <CoinComparisonSelector 
+              coins={mockCoins.slice(0, 3)}
+              allCoins={mockCoins}
+              onCoinChange={(index, coinId) => {
+                // TODO: Implement coin change logic with API
+                // This will call: getCoinsMarkets({ ids: 'bitcoin,ethereum,solana' })
+                console.log(`Change coin at index ${index} to ${coinId}`);
+              }}
+            />
           </View>
 
           <View style={styles.coinsListSection}>
@@ -177,7 +185,7 @@ const styles = StyleSheet.create({
     borderRadius: BorderRadius.full,
   },
   comparisonSection: {
-    paddingHorizontal: Spacing.md,
+    // paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.lg,
   },
   coinsListSection: {

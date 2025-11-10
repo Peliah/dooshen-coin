@@ -1,22 +1,14 @@
-/**
- * Animated gradient background component
- */
-
-import React, { useEffect } from 'react';
-import { View, StyleSheet, StyleProp, ViewStyle } from 'react-native';
-import Animated, {
-  useSharedValue,
-  useAnimatedStyle,
-  withRepeat,
-  withTiming,
-  interpolate,
-} from 'react-native-reanimated';
-import { Gradients, Colors } from '@/constants/theme';
+import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
-
-// Note: expo-linear-gradient needs to be installed
-// For now, using a simple View with background color
-// TODO: Install expo-linear-gradient and use LinearGradient component
+import React, { useEffect } from 'react';
+import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
+import Animated, {
+    interpolate,
+    useAnimatedStyle,
+    useSharedValue,
+    withRepeat,
+    withTiming,
+} from 'react-native-reanimated';
 
 interface GradientBackgroundProps {
   children?: React.ReactNode;
@@ -37,7 +29,7 @@ export function GradientBackground({ children, style, animated = true }: Gradien
         true
       );
     }
-  }, [animated]);
+  }, [animated, progress]);
 
   const animatedStyle = useAnimatedStyle(() => {
     if (!animated) return {};
@@ -64,7 +56,6 @@ export function GradientBackground({ children, style, animated = true }: Gradien
           { backgroundColor: Colors.dark.background }
         ]} 
       />
-      {/* TODO: Replace with LinearGradient after installing expo-linear-gradient */}
       {children}
     </View>
   );
