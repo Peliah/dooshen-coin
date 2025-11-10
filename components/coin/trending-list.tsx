@@ -51,11 +51,11 @@ export function TrendingList({ trendingCoins, loading = false }: TrendingListPro
 
 const styles = StyleSheet.create({
   container: {
-    marginVertical: Spacing.md,
+    marginVertical: Spacing.xs,
   },
   title: {
     paddingHorizontal: Spacing.md,
-    marginBottom: Spacing.sm,
+    marginBottom: Spacing.xs,
   },
   scrollContent: {
     paddingHorizontal: Spacing.md,

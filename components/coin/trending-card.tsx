@@ -61,7 +61,7 @@ const styles = StyleSheet.create({
     minWidth: 140,
   },
   content: {
-    padding: Spacing.md,
+    padding: Spacing.sm,
     alignItems: 'center',
   },
   iconContainer: {
@@ -75,7 +75,7 @@ const styles = StyleSheet.create({
     width: 40,
     height: 40,
     borderRadius: BorderRadius.full,
-    marginBottom: Spacing.xs,
+    marginBottom: Spacing.xs / 2,
   },
   coinInfo: {
     alignItems: 'center',
@@ -83,7 +83,7 @@ const styles = StyleSheet.create({
   },
   coinName: {
     fontSize: 14,
-    marginBottom: Spacing.xs / 2,
+    marginBottom: 0,
     textAlign: 'center',
   },
   coinSymbol: {

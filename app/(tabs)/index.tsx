@@ -1,19 +1,49 @@
+import { CoinCard } from '@/components/coin/coin-card';
 import { CoinComparisonSelector } from '@/components/coin/coin-comparison-selector';
+import { TrendingList } from '@/components/coin/trending-list';
+import { ThemedText } from '@/components/themed-text';
 import { GradientBackground } from '@/components/ui/gradient-background';
+import { SearchBar } from '@/components/ui/search-bar';
 import { ToastContainer } from '@/components/ui/toast/toast-container';
 import { BorderRadius, Colors, Spacing } from '@/constants/theme';
+import { mockCoins, mockTrendingCoins } from '@/utils/mock-data';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
-import React from 'react';
-import { SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CoinsListScreen() {
   const router = useRouter();
+  const [searchQuery, setSearchQuery] = useState('');
+  const [favorites, setFavorites] = useState<string[]>([]);
 
   const handleFavoritesPress = () => {
     router.push('/(tabs)/favorites' as any);
   };
+
+  const handleClearSearch = () => {
+    setSearchQuery('');
+  };
+
+  const handleToggleFavorite = (coinId: string) => {
+    setFavorites((prev) =>
+      prev.includes(coinId)
+        ? prev.filter((id) => id !== coinId)
+        : [...prev, coinId]
+    );
+  };
+
+  const filteredCoins = useMemo(() => {
+    if (!searchQuery.trim()) return mockCoins;
+    const query = searchQuery.toLowerCase();
+    return mockCoins.filter(
+      (coin) =>
+        coin.name.toLowerCase().includes(query) ||
+        coin.symbol.toLowerCase().includes(query)
+    );
+  }, [searchQuery]);
 
   return (
     <GradientBackground>
@@ -54,8 +84,31 @@ export default function CoinsListScreen() {
             </View>
           </View>
 
+          <SearchBar
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            onClear={handleClearSearch}
+            placeholder="Search coins..."
+          />
+
+          <TrendingList trendingCoins={mockTrendingCoins} />
+
           <View style={styles.comparisonSection}>
             <CoinComparisonSelector />
+          </View>
+
+          <View style={styles.coinsListSection}>
+            <ThemedText type="subtitle" style={styles.sectionTitle}>
+              All Coins
+            </ThemedText>
+            {filteredCoins.map((coin) => (
+              <CoinCard
+                key={coin.id}
+                coin={coin}
+                isFavorite={favorites.includes(coin.id)}
+                onToggleFavorite={handleToggleFavorite}
+              />
+            ))}
           </View>
         </ScrollView>
 
@@ -126,5 +179,12 @@ const styles = StyleSheet.create({
   comparisonSection: {
     paddingHorizontal: Spacing.md,
     paddingVertical: Spacing.lg,
+  },
+  coinsListSection: {
+    paddingHorizontal: Spacing.md,
+    paddingTop: Spacing.lg,
+  },
+  sectionTitle: {
+    marginBottom: Spacing.md,
   },
 });
