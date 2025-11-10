@@ -25,3 +25,18 @@ export interface ApiError {
   status?: number;
 }
 
+export interface PriceAlert {
+  id: string;
+  coinId: string;
+  coinName: string;
+  coinSymbol: string;
+  coinImage: string;
+  targetPrice: number;
+  condition: 'above' | 'below';
+  isActive: boolean;
+  createdAt: number;
+  triggeredAt?: number;
+}
+
+export type AlertCondition = 'above' | 'below';
+

@@ -1,11 +1,11 @@
 import {
-  CoinsMarketsResponse,
   CoinDetailsResponse,
+  CoinsMarketsResponse,
   MarketChartResponse,
-  TrendingSearchResponse,
+  PingResponse,
   SearchResponse,
   SimplePriceResponse,
-  PingResponse,
+  TrendingSearchResponse,
 } from '@/schema/api-response';
 
 const BASE_URL = process.env.EXPO_PUBLIC_COIN_GECKO_BASE_URL || 'https://api.coingecko.com/api/v3';
@@ -67,16 +67,35 @@ async function fetchAPI<T>(endpoint: string, params?: Record<string, unknown>): 
     headers['x-cg-demo-api-key'] = API_KEY;
   }
 
-  const response = await fetch(url.toString(), {
-    method: 'GET',
-    headers,
-  });
+  try {
+    const response = await fetch(url.toString(), {
+      method: 'GET',
+      headers,
+    });
 
-  if (!response.ok) {
-    throw new Error(`API Error: ${response.status} ${response.statusText}`);
+    if (!response.ok) {
+      let errorMessage = `API Error: ${response.status} ${response.statusText}`;
+      try {
+        const errorData = await response.json();
+        if (errorData.error || errorData.message) {
+          errorMessage = errorData.error || errorData.message;
+        }
+      } catch {
+        const errorText = await response.text();
+        if (errorText) {
+          errorMessage = errorText;
+        }
+      }
+      throw new Error(errorMessage);
+    }
+
+    return response.json();
+  } catch (error) {
+    if (error instanceof TypeError && error.message.includes('fetch')) {
+      throw new Error('Network error: Unable to connect to the API. Please check your internet connection.');
+    }
+    throw error;
   }
-
-  return response.json();
 }
 
 export async function ping(): Promise<PingResponse> {
@@ -94,7 +113,7 @@ export async function getCoinsMarkets(params?: CoinsMarketsParams): Promise<Coin
     ...params,
   };
 
-  return fetchAPI<CoinsMarketsResponse>('/coins/markets', defaultParams);
+  return fetchAPI<CoinsMarketsResponse>('/coins/markets', defaultParams as unknown as Record<string, unknown>);
 }
 
 export async function getCoinById(id: string, params?: CoinDetailsParams): Promise<CoinDetailsResponse> {
@@ -108,7 +127,7 @@ export async function getCoinById(id: string, params?: CoinDetailsParams): Promi
     ...params,
   };
 
-  return fetchAPI<CoinDetailsResponse>(`/coins/${id}`, defaultParams);
+  return fetchAPI<CoinDetailsResponse>(`/coins/${id}`, defaultParams as unknown as Record<string, unknown>);
 }
 
 export async function getCoinMarketChart(id: string, params: MarketChartParams): Promise<MarketChartResponse> {
@@ -117,7 +136,7 @@ export async function getCoinMarketChart(id: string, params: MarketChartParams):
     ...params,
   };
 
-  return fetchAPI<MarketChartResponse>(`/coins/${id}/market_chart`, defaultParams);
+  return fetchAPI<MarketChartResponse>(`/coins/${id}/market_chart`, defaultParams as unknown as Record<string, unknown>);
 }
 
 export async function getCoinMarketChartRange(id: string, params: MarketChartRangeParams): Promise<MarketChartResponse> {
@@ -126,7 +145,7 @@ export async function getCoinMarketChartRange(id: string, params: MarketChartRan
     ...params,
   };
 
-  return fetchAPI<MarketChartResponse>(`/coins/${id}/market_chart/range`, defaultParams);
+  return fetchAPI<MarketChartResponse>(`/coins/${id}/market_chart/range`, defaultParams as unknown as Record<string, unknown>);
 }
 
 export async function searchCoins(query: string): Promise<SearchResponse> {
