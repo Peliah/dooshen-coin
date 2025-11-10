@@ -1,98 +1,130 @@
+import { CoinComparisonSelector } from '@/components/coin/coin-comparison-selector';
+import { GradientBackground } from '@/components/ui/gradient-background';
+import { ToastContainer } from '@/components/ui/toast/toast-container';
+import { BorderRadius, Colors, Spacing } from '@/constants/theme';
+import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
-import { Platform, StyleSheet } from 'react-native';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { SafeAreaView, ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
 
-import { HelloWave } from '@/components/hello-wave';
-import ParallaxScrollView from '@/components/parallax-scroll-view';
-import { ThemedText } from '@/components/themed-text';
-import { ThemedView } from '@/components/themed-view';
-import { Link } from 'expo-router';
+export default function CoinsListScreen() {
+  const router = useRouter();
 
-export default function HomeScreen() {
+  const handleFavoritesPress = () => {
+    router.push('/(tabs)/favorites' as any);
+  };
+
   return (
-    <ParallaxScrollView
-      headerBackgroundColor={{ light: '#A1CEDC', dark: '#1D3D47' }}
-      headerImage={
-        <Image
-          source={require('@/assets/images/partial-react-logo.png')}
-          style={styles.reactLogo}
-        />
-      }>
-      <ThemedView style={styles.titleContainer}>
-        <ThemedText type="title">Welcome!</ThemedText>
-        <HelloWave />
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 1: Try it</ThemedText>
-        <ThemedText>
-          Edit <ThemedText type="defaultSemiBold">app/(tabs)/index.tsx</ThemedText> to see changes.
-          Press{' '}
-          <ThemedText type="defaultSemiBold">
-            {Platform.select({
-              ios: 'cmd + d',
-              android: 'cmd + m',
-              web: 'F12',
-            })}
-          </ThemedText>{' '}
-          to open developer tools.
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <Link href="/modal">
-          <Link.Trigger>
-            <ThemedText type="subtitle">Step 2: Explore</ThemedText>
-          </Link.Trigger>
-          <Link.Preview />
-          <Link.Menu>
-            <Link.MenuAction title="Action" icon="cube" onPress={() => alert('Action pressed')} />
-            <Link.MenuAction
-              title="Share"
-              icon="square.and.arrow.up"
-              onPress={() => alert('Share pressed')}
-            />
-            <Link.Menu title="More" icon="ellipsis">
-              <Link.MenuAction
-                title="Delete"
-                icon="trash"
-                destructive
-                onPress={() => alert('Delete pressed')}
-              />
-            </Link.Menu>
-          </Link.Menu>
-        </Link>
+    <GradientBackground>
+      <SafeAreaView style={styles.container}>
+        <ScrollView 
+          style={styles.scrollView}
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}
+        >
+          <View style={styles.heroSection}>
+            <View style={styles.imageContainer}>
+              <View style={styles.imageRing}>
+                <Image
+                  source={require('@/assets/imgs/nft-mokey.jpg')}
+                  style={styles.nftImage}
+                  contentFit="cover"
+                  cachePolicy="memory"
+                />
+              </View>
+            </View>
 
-        <ThemedText>
-          {`Tap the Explore tab to learn more about what's included in this starter app.`}
-        </ThemedText>
-      </ThemedView>
-      <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">Step 3: Get a fresh start</ThemedText>
-        <ThemedText>
-          {`When you're ready, run `}
-          <ThemedText type="defaultSemiBold">npm run reset-project</ThemedText> to get a fresh{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> directory. This will move the current{' '}
-          <ThemedText type="defaultSemiBold">app</ThemedText> to{' '}
-          <ThemedText type="defaultSemiBold">app-example</ThemedText>.
-        </ThemedText>
-      </ThemedView>
-    </ParallaxScrollView>
+            <View style={styles.rightSection}>
+              <TouchableOpacity 
+                onPress={handleFavoritesPress}
+                style={styles.favoritesButton}
+                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+              >
+                <Ionicons 
+                  name="heart" 
+                  size={24} 
+                  color={Colors.dark.accent} 
+                />
+              </TouchableOpacity>
+
+              <View style={styles.networkIndicator}>
+                <View style={[styles.networkDot, { backgroundColor: Colors.dark.success }]} />
+              </View>
+            </View>
+          </View>
+
+          <View style={styles.comparisonSection}>
+            <CoinComparisonSelector />
+          </View>
+        </ScrollView>
+
+        <ToastContainer />
+      </SafeAreaView>
+    </GradientBackground>
   );
 }
 
 const styles = StyleSheet.create({
-  titleContainer: {
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingBottom: Spacing.xl,
+  },
+  heroSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 8,
+    justifyContent: 'space-between',
+    paddingHorizontal: Spacing.lg,
+    paddingVertical: Spacing.xl,
   },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
+  imageContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  reactLogo: {
-    height: 178,
-    width: 290,
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
+  imageRing: {
+    width: 80,
+    height: 80,
+    borderRadius: BorderRadius.full,
+    padding: 3,
+    backgroundColor: Colors.dark.primary,
+    borderWidth: 2,
+    borderColor: Colors.dark.accent,
+    shadowColor: Colors.dark.accent,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.5,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  nftImage: {
+    width: '100%',
+    height: '100%',
+    borderRadius: BorderRadius.full,
+  },
+  rightSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: Spacing.md,
+  },
+  favoritesButton: {
+    padding: Spacing.sm,
+  },
+  networkIndicator: {
+    padding: Spacing.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  networkDot: {
+    width: 12,
+    height: 12,
+    borderRadius: BorderRadius.full,
+  },
+  comparisonSection: {
+    paddingHorizontal: Spacing.md,
+    paddingVertical: Spacing.lg,
   },
 });
