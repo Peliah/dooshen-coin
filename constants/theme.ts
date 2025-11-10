@@ -1,45 +1,36 @@
-/**
- * Web3-themed color system with glassmorphic design
- * Dark mode is primary theme
- */
-
 import { Platform } from 'react-native';
 
-// Web3 Color Palette - Custom Colors
-const web3Primary = '#f2f5fc'; // Primary color
-const web3Secondary = '#161621'; // Secondary color
-const web3Accent = '#f5f5f5'; // Text and highlights
-const web3Success = '#10B981'; // Green
-const web3Error = '#EF4444'; // Red
-const web3Warning = '#F59E0B'; // Amber
+const web3Primary = '#ff9f00';
+const web3Secondary = '#161621';
+const web3Accent = '#f5f5f5';
+const web3Success = '#10B981';
+const web3Error = '#EF4444';
+const web3Warning = '#F59E0B';
 
-// Dark Mode Colors (Primary)
-const darkBackground = '#161621'; // Secondary color as background
-const darkSurface = '#1a1a28'; // Slightly lighter than secondary
-const darkCard = '#1f1f2e'; // Card background
-const darkText = '#f5f5f5'; // Text and highlights
-const darkTextSecondary = '#a1a1aa'; // Muted text
-const darkBorder = 'rgba(245, 245, 245, 0.1)'; // Subtle border
+const darkBackground = '#161621';
+const darkSurface = '#1a1a28';
+const darkCard = '#1f1f2e';
+const darkText = '#f5f5f5';
+const darkTextSecondary = '#a1a1aa';
+const darkBorder = 'rgba(245, 245, 245, 0.1)';
 
-// Glassmorphic Colors
-const glassBackground = 'rgba(31, 31, 46, 0.7)'; // Semi-transparent card
-const glassBorder = 'rgba(245, 245, 245, 0.15)'; // Glass border
-const glassBlur = 20; // Blur intensity
+const glassBackground = 'rgba(31, 31, 46, 0.7)';
+const glassBorder = 'rgba(245, 245, 245, 0.15)';
+const glassBlur = 20;
 
-// Gradient Colors
 export const Gradients = {
-  primary: ['#f2f5fc', '#e8edf9', '#dde5f5'], // Primary color gradient
-  background: ['#161621', '#1a1a28', '#1f1f2e'], // Secondary color gradient
-  card: ['rgba(242, 245, 252, 0.1)', 'rgba(245, 245, 245, 0.1)'], // Subtle card gradient
+  primary: ['#ff9f00', '#ffb340', '#ffc766'],
+  background: ['#161621', '#1a1a28', '#1f1f2e'],
+  card: ['rgba(255, 159, 0, 0.1)', 'rgba(245, 245, 245, 0.1)'],
   glow: {
-    primary: 'rgba(242, 245, 252, 0.3)',
+    primary: 'rgba(255, 159, 0, 0.3)',
     secondary: 'rgba(22, 22, 33, 0.3)',
     accent: 'rgba(245, 245, 245, 0.3)',
   },
 };
 
 const tintColorLight = '#0a7ea4';
-const tintColorDark = web3Primary; // #f2f5fc
+const tintColorDark = web3Primary;
 
 export const Colors = {
   light: {
@@ -51,7 +42,6 @@ export const Colors = {
     tabIconSelected: tintColorLight,
   },
   dark: {
-    // Primary dark theme (Web3)
     text: darkText,
     textSecondary: darkTextSecondary,
     background: darkBackground,
@@ -63,7 +53,6 @@ export const Colors = {
     tabIconDefault: darkTextSecondary,
     tabIconSelected: tintColorDark,
     
-    // Web3 Accent Colors
     primary: web3Primary,
     secondary: web3Secondary,
     accent: web3Accent,
@@ -71,7 +60,6 @@ export const Colors = {
     error: web3Error,
     warning: web3Warning,
     
-    // Glassmorphic
     glass: {
       background: glassBackground,
       border: glassBorder,
@@ -82,38 +70,28 @@ export const Colors = {
 
 export const Fonts = Platform.select({
   ios: {
-    /** Main Web3 font - Rosefana */
     sans: 'Rosefana',
-    /** iOS `UIFontDescriptorSystemDesignSerif` */
     serif: 'ui-serif',
-    /** iOS `UIFontDescriptorSystemDesignRounded` */
     rounded: 'ui-rounded',
-    /** iOS `UIFontDescriptorSystemDesignMonospaced` */
     mono: 'ui-monospace',
-    /** Custom Web3 font (alias for sans) */
     web3: 'Rosefana',
   },
   default: {
-    /** Main Web3 font - Rosefana */
     sans: 'Rosefana',
     serif: 'serif',
     rounded: 'normal',
     mono: 'monospace',
-    /** Custom Web3 font (alias for sans) */
     web3: 'Rosefana',
   },
   web: {
-    /** Main Web3 font - Rosefana */
     sans: 'Rosefana',
     serif: "Georgia, 'Times New Roman', serif",
     rounded: "'SF Pro Rounded', 'Hiragino Maru Gothic ProN', Meiryo, 'MS PGothic', sans-serif",
     mono: "SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace",
-    /** Custom Web3 font (alias for sans) */
     web3: 'Rosefana',
   },
 });
 
-// Web3 Design Tokens
 export const Spacing = {
   xs: 4,
   sm: 8,
@@ -154,7 +132,7 @@ export const Shadows = {
     elevation: 8,
   },
   glow: {
-    shadowColor: web3Primary, // #f2f5fc
+    shadowColor: web3Primary,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.5,
     shadowRadius: 20,

@@ -1,7 +1,3 @@
-/**
- * Individual toast item component
- */
-
 import React, { useEffect } from 'react';
 import { View, StyleSheet, TouchableOpacity } from 'react-native';
 import Animated, {
@@ -28,11 +24,9 @@ export function ToastItem({ toast }: ToastItemProps) {
   const opacity = useSharedValue(0);
 
   useEffect(() => {
-    // Animate in
     translateY.value = withSpring(0, { damping: 15 });
     opacity.value = withTiming(1, { duration: 300 });
 
-    // Auto dismiss
     if (toast.duration !== 0) {
       const timer = setTimeout(() => {
         dismiss();
