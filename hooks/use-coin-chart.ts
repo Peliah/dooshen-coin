@@ -76,15 +76,25 @@ export function useCoinChart(coinId: string, timeRange: TimeRange) {
         return;
       }
       
+      if (!isOnline) {
+        const cached = await getCachedChart(coinId, timeRange, true);
+        if (cached) {
+          setChartData(coinId, timeRange, cached);
+          setError(coinId, null);
+        } else {
+          setChartData(coinId, timeRange, mockChartData);
+          setError(coinId, null);
+        }
+        return;
+      }
+      
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch chart data';
       setError(coinId, errorMessage);
       
-      if (isOnline) {
-        addToast({
-          type: 'error',
-          message: errorMessage,
-        });
-      }
+      addToast({
+        type: 'error',
+        message: errorMessage,
+      });
     } finally {
       setLoading(coinId, false);
     }
@@ -92,14 +102,18 @@ export function useCoinChart(coinId: string, timeRange: TimeRange) {
 
   const loadCachedData = useCallback(async () => {
     try {
-      const cached = await getCachedChart(coinId, timeRange);
+      const allowExpired = !isOnline;
+      const cached = await getCachedChart(coinId, timeRange, allowExpired);
       if (cached) {
         setChartData(coinId, timeRange, cached);
+        if (allowExpired) {
+          console.log(`[useCoinChart] Using expired cache for ${coinId} (offline mode)`);
+        }
       }
     } catch (error) {
       console.error('Failed to load cached chart:', error);
     }
-  }, [coinId, timeRange, setChartData]);
+  }, [coinId, timeRange, setChartData, isOnline]);
 
   useEffect(() => {
     if (!coinId) return;

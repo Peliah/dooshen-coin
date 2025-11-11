@@ -60,15 +60,34 @@ export function useCoins() {
         return;
       }
       
+      if (!isOnline) {
+        const [cachedCoins, cachedTrending] = await Promise.all([
+          getCachedCoins(true),
+          getCachedTrending(true),
+        ]);
+        
+        if (cachedCoins) {
+          setCoins(cachedCoins);
+        }
+        if (cachedTrending) {
+          setTrending(cachedTrending);
+        }
+        
+        if (!cachedCoins && !cachedTrending) {
+          setError('No cached data available. Please connect to the internet.');
+        } else {
+          setError(null);
+        }
+        return;
+      }
+      
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch coins';
       setError(errorMessage);
       
-      if (isOnline) {
-        addToast({
-          type: 'error',
-          message: errorMessage,
-        });
-      }
+      addToast({
+        type: 'error',
+        message: errorMessage,
+      });
     } finally {
       if (showLoading) {
         setIsRefreshing(false);
@@ -78,13 +97,17 @@ export function useCoins() {
 
   const loadCachedData = useCallback(async () => {
     try {
+      const allowExpired = !isOnline;
       const [cachedCoins, cachedTrending] = await Promise.all([
-        getCachedCoins(),
-        getCachedTrending(),
+        getCachedCoins(allowExpired),
+        getCachedTrending(allowExpired),
       ]);
 
       if (cachedCoins) {
         setCoins(cachedCoins);
+        if (allowExpired) {
+          console.log('[useCoins] Using expired cache (offline mode)');
+        }
       }
 
       if (cachedTrending) {
@@ -93,7 +116,7 @@ export function useCoins() {
     } catch (error) {
       console.error('Failed to load cached data:', error);
     }
-  }, [setCoins, setTrending]);
+  }, [setCoins, setTrending, isOnline]);
 
   useEffect(() => {
     const initialize = async () => {

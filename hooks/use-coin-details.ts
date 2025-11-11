@@ -49,15 +49,24 @@ export function useCoinDetails(coinId: string) {
         return;
       }
       
+      if (!isOnline) {
+        const cached = await getCachedCoinDetails(coinId, true);
+        if (cached) {
+          setCoinDetails(coinId, cached);
+          setError(coinId, null);
+        } else {
+          setError(coinId, 'No cached data available. Please connect to the internet.');
+        }
+        return;
+      }
+      
       const errorMessage = error instanceof Error ? error.message : 'Failed to fetch coin details';
       setError(coinId, errorMessage);
       
-      if (isOnline) {
-        addToast({
-          type: 'error',
-          message: errorMessage,
-        });
-      }
+      addToast({
+        type: 'error',
+        message: errorMessage,
+      });
     } finally {
       setLoading(coinId, false);
     }
@@ -65,14 +74,18 @@ export function useCoinDetails(coinId: string) {
 
   const loadCachedData = useCallback(async () => {
     try {
-      const cached = await getCachedCoinDetails(coinId);
+      const allowExpired = !isOnline;
+      const cached = await getCachedCoinDetails(coinId, allowExpired);
       if (cached) {
         setCoinDetails(coinId, cached);
+        if (allowExpired) {
+          console.log(`[useCoinDetails] Using expired cache for ${coinId} (offline mode)`);
+        }
       }
     } catch (error) {
       console.error('Failed to load cached coin details:', error);
     }
-  }, [coinId, setCoinDetails]);
+  }, [coinId, setCoinDetails, isOnline]);
 
   useEffect(() => {
     if (!coinId) return;
