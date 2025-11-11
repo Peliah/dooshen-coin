@@ -2,15 +2,29 @@ import { ThemedText } from '@/components/themed-text';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Colors, Spacing } from '@/constants/theme';
 import { Coin } from '@/schema/coin';
+import { mockCoins } from '@/utils/mock-data';
 import { formatPrice } from '@/utils/formatters';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 interface CoinRange24hProps {
-  coin: Coin;
+  coin: Coin | null | undefined;
 }
 
 export function CoinRange24h({ coin }: CoinRange24hProps) {
+  let safeCoin: Coin;
+  try {
+    if (!coin) {
+      console.warn('[CoinRange24h] Coin data is missing, falling back to mock data');
+      safeCoin = mockCoins[0];
+    } else {
+      safeCoin = coin;
+    }
+  } catch (error) {
+    console.error('[CoinRange24h] Error processing coin data:', error);
+    safeCoin = mockCoins[0];
+  }
+
   return (
     <GlassCard style={styles.rangeCard}>
       <ThemedText type="subtitle" style={styles.sectionTitle}>
@@ -21,7 +35,7 @@ export function CoinRange24h({ coin }: CoinRange24hProps) {
         <View style={styles.rangeItem}>
           <ThemedText style={styles.rangeLabel}>High</ThemedText>
           <ThemedText type="defaultSemiBold" style={styles.rangeValue}>
-            {formatPrice(coin.high_24h)}
+            {formatPrice(safeCoin?.high_24h ?? 0)}
           </ThemedText>
         </View>
 
@@ -30,7 +44,7 @@ export function CoinRange24h({ coin }: CoinRange24hProps) {
         <View style={styles.rangeItem}>
           <ThemedText style={styles.rangeLabel}>Low</ThemedText>
           <ThemedText type="defaultSemiBold" style={styles.rangeValue}>
-            {formatPrice(coin.low_24h)}
+            {formatPrice(safeCoin?.low_24h ?? 0)}
           </ThemedText>
         </View>
       </View>

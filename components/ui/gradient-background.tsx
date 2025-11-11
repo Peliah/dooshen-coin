@@ -3,11 +3,11 @@ import { useColorScheme } from '@/hooks/use-color-scheme';
 import React, { useEffect } from 'react';
 import { StyleProp, StyleSheet, View, ViewStyle } from 'react-native';
 import Animated, {
-    interpolate,
-    useAnimatedStyle,
-    useSharedValue,
-    withRepeat,
-    withTiming,
+  interpolate,
+  useAnimatedStyle,
+  useSharedValue,
+  withRepeat,
+  withTiming,
 } from 'react-native-reanimated';
 
 interface GradientBackgroundProps {
@@ -28,11 +28,18 @@ export function GradientBackground({ children, style, animated = true }: Gradien
         -1,
         true
       );
+    } else {
+      progress.value = 0;
     }
-  }, [animated, progress]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [animated]);
 
   const animatedStyle = useAnimatedStyle(() => {
-    if (!animated) return {};
+    if (!animated) {
+      return {
+        opacity: 1,
+      };
+    }
     
     return {
       opacity: interpolate(progress.value, [0, 0.5, 1], [0.8, 1, 0.8]),

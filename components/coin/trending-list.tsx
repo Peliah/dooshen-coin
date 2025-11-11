@@ -16,37 +16,72 @@ interface TrendingListProps {
 }
 
 export function TrendingList({ trendingCoins, loading = false }: TrendingListProps) {
-  if (loading) {
+  try {
+    if (loading) {
+      return (
+        <View style={styles.container}>
+          <ThemedText type="subtitle" style={styles.title}>
+            Trending
+          </ThemedText>
+          <LoadingState count={1} />
+        </View>
+      );
+    }
+
+    if (!trendingCoins || trendingCoins.length === 0) {
+      console.warn('[TrendingList] No trending coins available');
+      return null;
+    }
+
+    const validCoins = trendingCoins.filter((trendingCoin, index) => {
+      try {
+        if (!trendingCoin || !trendingCoin.item || !trendingCoin.item.id) {
+          console.warn(`[TrendingList] Invalid trending coin at index ${index}`);
+          return false;
+        }
+        return true;
+      } catch (error) {
+        console.error(`[TrendingList] Error validating trending coin at index ${index}:`, error);
+        return false;
+      }
+    });
+
+    if (validCoins.length === 0) {
+      console.warn('[TrendingList] No valid trending coins after filtering');
+      return null;
+    }
+
     return (
       <View style={styles.container}>
         <ThemedText type="subtitle" style={styles.title}>
           Trending
         </ThemedText>
-        <LoadingState count={1} />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.scrollContent}
+          nestedScrollEnabled={true}
+        >
+          {validCoins.map((trendingCoin, index) => {
+            try {
+              return (
+                <TrendingCard 
+                  key={`trending-${trendingCoin.item.id}-${index}`} 
+                  trendingCoin={trendingCoin} 
+                />
+              );
+            } catch (error) {
+              console.error(`[TrendingList] Error rendering trending coin at index ${index}:`, error);
+              return null;
+            }
+          })}
+        </ScrollView>
       </View>
     );
-  }
-
-  if (trendingCoins.length === 0) {
+  } catch (error) {
+    console.error('[TrendingList] Component render error:', error);
     return null;
   }
-
-  return (
-    <View style={styles.container}>
-      <ThemedText type="subtitle" style={styles.title}>
-        Trending
-      </ThemedText>
-      <ScrollView
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.scrollContent}
-      >
-        {trendingCoins.map((trendingCoin, index) => (
-          <TrendingCard key={`${trendingCoin.item.id}-${index}`} trendingCoin={trendingCoin} />
-        ))}
-      </ScrollView>
-    </View>
-  );
 }
 
 const styles = StyleSheet.create({

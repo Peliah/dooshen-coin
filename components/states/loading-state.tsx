@@ -2,16 +2,16 @@
  * Loading state component with skeleton loaders
  */
 
+import { GlassCard } from '@/components/ui/glass-card';
+import { BorderRadius, Colors, Spacing } from '@/constants/theme';
 import React, { useEffect } from 'react';
-import { View, StyleSheet } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import Animated, {
-  useSharedValue,
   useAnimatedStyle,
+  useSharedValue,
   withRepeat,
   withTiming,
 } from 'react-native-reanimated';
-import { Colors, Spacing, BorderRadius } from '@/constants/theme';
-import { GlassCard } from '@/components/ui/glass-card';
 
 interface LoadingStateProps {
   count?: number;
@@ -36,6 +36,7 @@ function SkeletonCard() {
       -1,
       true
     );
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const animatedStyle = useAnimatedStyle(() => ({
@@ -46,15 +47,15 @@ function SkeletonCard() {
     <GlassCard style={styles.card}>
       <Animated.View style={[styles.skeleton, animatedStyle]}>
         <View style={styles.header}>
-          <View style={[styles.circle, animatedStyle]} />
+          <Animated.View style={[styles.circle, animatedStyle]} />
           <View style={styles.textContainer}>
-            <View style={[styles.line, { width: '60%' }, animatedStyle]} />
-            <View style={[styles.line, { width: '40%', marginTop: Spacing.xs }, animatedStyle]} />
+            <Animated.View style={[styles.line, { width: '60%' }, animatedStyle]} />
+            <Animated.View style={[styles.line, { width: '40%', marginTop: Spacing.xs }, animatedStyle]} />
           </View>
         </View>
         <View style={styles.footer}>
-          <View style={[styles.line, { width: '50%' }, animatedStyle]} />
-          <View style={[styles.line, { width: '30%' }, animatedStyle]} />
+          <Animated.View style={[styles.line, { width: '50%' }, animatedStyle]} />
+          <Animated.View style={[styles.line, { width: '30%' }, animatedStyle]} />
         </View>
       </Animated.View>
     </GlassCard>

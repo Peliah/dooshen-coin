@@ -4,37 +4,82 @@ import { CoinHighLow } from '@/components/coin/coin-high-low';
 import { CoinMarketStats } from '@/components/coin/coin-market-stats';
 import { CoinPriceSection } from '@/components/coin/coin-price-section';
 import { CoinRange24h } from '@/components/coin/coin-range-24h';
+import { ErrorState } from '@/components/states/error-state';
+import { LoadingState } from '@/components/states/loading-state';
 import { GradientBackground } from '@/components/ui/gradient-background';
 import { ToastContainer } from '@/components/ui/toast/toast-container';
-import { Spacing } from '@/constants/theme';
-import { mockChartData, mockCoins } from '@/utils/mock-data';
+import { Colors, Spacing } from '@/constants/theme';
+import { useCoinChart } from '@/hooks/use-coin-chart';
+import { useCoinDetails } from '@/hooks/use-coin-details';
+import { useFavorites } from '@/hooks/use-favorites';
 import { useLocalSearchParams } from 'expo-router';
-import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import React, { useState } from 'react';
+import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CoinDetailsScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  const [isFavorite, setIsFavorite] = useState(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState<TimeRange>('7');
+  
+  const { details, loading, error, refresh } = useCoinDetails(id || '');
+  const { chartData, loading: chartLoading, refresh: refreshChart } = useCoinChart(id || '', selectedTimeRange);
+  const { isFavorite, toggleFavorite } = useFavorites();
 
-  const coin = useMemo(() => {
-    return mockCoins.find((c) => c.id === id) || mockCoins[0];
-  }, [id]);
+  const coin = details;
+
+  if (loading && !coin) {
+    return (
+      <GradientBackground>
+        <SafeAreaView style={styles.container}>
+          <LoadingState count={5} />
+        </SafeAreaView>
+      </GradientBackground>
+    );
+  }
+
+  if (error && !coin) {
+    return (
+      <GradientBackground>
+        <SafeAreaView style={styles.container}>
+          <ErrorState message={error} onRetry={refresh} />
+        </SafeAreaView>
+      </GradientBackground>
+    );
+  }
+
+  if (!coin) {
+    return (
+      <GradientBackground>
+        <SafeAreaView style={styles.container}>
+          <ErrorState message="Coin not found" />
+        </SafeAreaView>
+      </GradientBackground>
+    );
+  }
 
   return (
     <GradientBackground>
       <SafeAreaView style={styles.container}>
         <CoinDetailsHeader
           coin={coin}
-          isFavorite={isFavorite}
-          onToggleFavorite={() => setIsFavorite((prev) => !prev)}
+          isFavorite={isFavorite(coin.id)}
+          onToggleFavorite={() => toggleFavorite(coin.id)}
         />
 
         <ScrollView
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={loading || chartLoading}
+              onRefresh={() => {
+                refresh();
+                refreshChart();
+              }}
+              tintColor={Colors.dark.primary}
+            />
+          }
         >
           <View style={styles.priceSection}>
             <CoinPriceSection coin={coin} />
@@ -44,7 +89,7 @@ export default function CoinDetailsScreen() {
             <CoinChartSection
               selectedTimeRange={selectedTimeRange}
               onTimeRangeChange={setSelectedTimeRange}
-              chartData={mockChartData}
+              chartData={chartData ?? undefined}
             />
           </View>
 

@@ -34,6 +34,7 @@ export function ToastItem({ toast }: ToastItemProps) {
 
       return () => clearTimeout(timer);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const dismiss = () => {

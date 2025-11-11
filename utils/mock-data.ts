@@ -2,7 +2,7 @@
  * Mock data for UI development and testing
  */
 
-import { Coin, MarketChartData, TrendingCoin } from '@/schema/coin';
+import { Coin, CoinDetails, MarketChartData, TrendingCoin } from '@/schema/coin';
 
 export const mockCoins: Coin[] = [
   {
@@ -187,10 +187,46 @@ export const mockTrendingCoins: TrendingCoin[] = [
   },
 ];
 
-// Generate mock chart data for 7 days
+export const mockCoinDetails: CoinDetails = {
+  ...mockCoins[0],
+  description: {
+    en: 'Bitcoin is a decentralized digital currency, without a central bank or single administrator, that can be sent from user to user on the peer-to-peer bitcoin network without the need for intermediaries.',
+  },
+  links: {
+    homepage: ['https://bitcoin.org'],
+    blockchain_site: ['https://blockchain.info'],
+    official_forum_url: ['https://bitcointalk.org'],
+    subreddit_url: 'https://reddit.com/r/bitcoin',
+    repos_url: {
+      github: ['https://github.com/bitcoin/bitcoin'],
+    },
+  },
+  market_data: {
+    current_price: { usd: 43250.50 },
+    market_cap: { usd: 850123456789 },
+    total_volume: { usd: 12345678901 },
+    high_24h: { usd: 44500.00 },
+    low_24h: { usd: 42800.00 },
+    price_change_24h: 1250.50,
+    price_change_percentage_24h: 2.98,
+    market_cap_change_24h: 25000000000,
+    market_cap_change_percentage_24h: 3.03,
+    circulating_supply: 19650000,
+    total_supply: 19650000,
+    max_supply: 21000000,
+    ath: { usd: 69045 },
+    ath_change_percentage: { usd: -37.35 },
+    ath_date: { usd: '2021-11-10T14:24:11.849Z' },
+    atl: { usd: 67.81 },
+    atl_change_percentage: { usd: 63657.89 },
+    atl_date: { usd: '2013-07-06T00:00:00.000Z' },
+    fully_diluted_valuation: { usd: 908765432109 },
+  },
+};
+
 export const mockChartData: MarketChartData = {
   prices: Array.from({ length: 168 }, (_, i) => {
-    const timestamp = Date.now() - (167 - i) * 60 * 60 * 1000; // Last 7 days, hourly
+    const timestamp = Date.now() - (167 - i) * 60 * 60 * 1000;
     const basePrice = 43000;
     const variation = (Math.random() - 0.5) * 2000;
     return [timestamp, basePrice + variation];

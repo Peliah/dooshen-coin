@@ -48,6 +48,13 @@ interface SimplePriceParams {
   include_last_updated_at?: boolean;
 }
 
+export class RateLimitError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = 'RateLimitError';
+  }
+}
+
 async function fetchAPI<T>(endpoint: string, params?: Record<string, unknown>): Promise<T> {
   const url = new URL(`${BASE_URL}${endpoint}`);
   
@@ -74,6 +81,10 @@ async function fetchAPI<T>(endpoint: string, params?: Record<string, unknown>): 
     });
 
     if (!response.ok) {
+      if (response.status === 429) {
+        throw new RateLimitError('Rate limit exceeded. Please try again later.');
+      }
+      
       let errorMessage = `API Error: ${response.status} ${response.statusText}`;
       try {
         const errorData = await response.json();
@@ -91,6 +102,9 @@ async function fetchAPI<T>(endpoint: string, params?: Record<string, unknown>): 
 
     return response.json();
   } catch (error) {
+    if (error instanceof RateLimitError) {
+      throw error;
+    }
     if (error instanceof TypeError && error.message.includes('fetch')) {
       throw new Error('Network error: Unable to connect to the API. Please check your internet connection.');
     }

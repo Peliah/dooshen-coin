@@ -2,40 +2,58 @@ import { ThemedText } from '@/components/themed-text';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Colors, Spacing } from '@/constants/theme';
 import { Coin } from '@/schema/coin';
+import { mockCoins } from '@/utils/mock-data';
 import { formatPercentage, formatPrice, getPercentageColor } from '@/utils/formatters';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 interface CoinPriceSectionProps {
-  coin: Coin;
+  coin: Coin | null | undefined;
 }
 
 export function CoinPriceSection({ coin }: CoinPriceSectionProps) {
+  let safeCoin: Coin;
+  try {
+    if (!coin) {
+      console.warn('[CoinPriceSection] Coin data is missing, falling back to mock data');
+      safeCoin = mockCoins[0];
+    } else {
+      safeCoin = coin;
+    }
+  } catch (error) {
+    console.error('[CoinPriceSection] Error processing coin data:', error);
+    safeCoin = mockCoins[0];
+  }
+
+  const priceChange = safeCoin?.price_change_percentage_24h ?? 0;
+  const priceChange24h = safeCoin?.price_change_24h ?? 0;
+  const currentPrice = safeCoin?.current_price ?? 0;
+
   return (
     <GlassCard style={styles.priceCard}>
       <View style={styles.priceRow}>
         <ThemedText type="title" style={styles.price}>
-          {formatPrice(coin.current_price)}
+          {formatPrice(currentPrice)}
         </ThemedText>
         <View style={styles.changeRow}>
           <Ionicons
-            name={coin.price_change_percentage_24h && coin.price_change_percentage_24h >= 0 ? 'trending-up' : 'trending-down'}
+            name={priceChange >= 0 ? 'trending-up' : 'trending-down'}
             size={20}
-            color={getPercentageColor(coin.price_change_percentage_24h)}
+            color={getPercentageColor(priceChange)}
           />
           <ThemedText
             style={[
               styles.priceChange,
-              { color: getPercentageColor(coin.price_change_percentage_24h) },
+              { color: getPercentageColor(priceChange) },
             ]}
           >
-            {formatPercentage(coin.price_change_percentage_24h)}
+            {formatPercentage(priceChange)}
           </ThemedText>
         </View>
       </View>
       <ThemedText style={styles.priceChange24h}>
-        24h: {formatPrice(coin.price_change_24h)}
+        24h: {formatPrice(priceChange24h)}
       </ThemedText>
     </GlassCard>
   );

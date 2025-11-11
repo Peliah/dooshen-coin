@@ -1,49 +1,96 @@
-import { CoinCard } from '@/components/coin/coin-card';
-import { CoinComparisonSelector } from '@/components/coin/coin-comparison-selector';
-import { TrendingList } from '@/components/coin/trending-list';
-import { ThemedText } from '@/components/themed-text';
+import { HomeContent } from '@/components/home/home-content';
+import { HomeHero } from '@/components/home/home-hero';
+import { ErrorState } from '@/components/states/error-state';
+import { LoadingState } from '@/components/states/loading-state';
 import { GradientBackground } from '@/components/ui/gradient-background';
 import { SearchBar } from '@/components/ui/search-bar';
 import { ToastContainer } from '@/components/ui/toast/toast-container';
-import { BorderRadius, Colors, Spacing } from '@/constants/theme';
-import { mockCoins, mockTrendingCoins } from '@/utils/mock-data';
-import { Ionicons } from '@expo/vector-icons';
-import { Image } from 'expo-image';
-import { useRouter } from 'expo-router';
+import { Colors, Spacing } from '@/constants/theme';
+import { useCoins } from '@/hooks/use-coins';
+import { useFavorites } from '@/hooks/use-favorites';
+import { mockTrendingCoins } from '@/utils/mock-data';
 import React, { useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, TouchableOpacity, View } from 'react-native';
+import { RefreshControl, ScrollView, StyleSheet } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 export default function CoinsListScreen() {
-  const router = useRouter();
+  const { coins, trending, loading, error, isRefreshing, refresh } = useCoins();
+  const { isFavorite, toggleFavorite } = useFavorites();
   const [searchQuery, setSearchQuery] = useState('');
-  const [favorites, setFavorites] = useState<string[]>([]);
 
-  const handleFavoritesPress = () => {
-    router.push('/(tabs)/favorites' as any);
-  };
+  const safeTrending = useMemo(() => {
+    try {
+      if (!trending || trending.length === 0) {
+        console.warn('[CoinsListScreen] No trending coins available, falling back to mock data');
+        return mockTrendingCoins;
+      }
+      const validTrending = trending.filter((item) => {
+        try {
+          return item != null && item.item != null && item.item.id != null;
+        } catch (error) {
+          console.error('[CoinsListScreen] Error validating trending coin:', error);
+          return false;
+        }
+      });
+      if (validTrending.length === 0) {
+        console.warn('[CoinsListScreen] All trending coins invalid, falling back to mock data');
+        return mockTrendingCoins;
+      }
+      return validTrending;
+    } catch (error) {
+      console.error('[CoinsListScreen] Error processing trending coins:', error);
+      return mockTrendingCoins;
+    }
+  }, [trending]);
+
+  const filteredCoins = useMemo(() => {
+    try {
+      if (!coins || coins.length === 0) {
+        console.warn('[CoinsListScreen] No coins available for filtering');
+        return [];
+      }
+      if (!searchQuery.trim()) return coins;
+      const query = searchQuery.toLowerCase();
+      return coins.filter((coin) => {
+        try {
+          if (!coin || !coin.name || !coin.symbol) {
+            return false;
+          }
+          return (
+            coin.name.toLowerCase().includes(query) ||
+            coin.symbol.toLowerCase().includes(query)
+          );
+        } catch (error) {
+          console.error('[CoinsListScreen] Error filtering coin:', error);
+          return false;
+        }
+      });
+    } catch (error) {
+      console.error('[CoinsListScreen] Error in filteredCoins:', error);
+      return [];
+    }
+  }, [coins, searchQuery]);
+
+  const comparisonCoins = useMemo(() => {
+    try {
+      if (!coins || coins.length === 0) {
+        console.warn('[CoinsListScreen] No coins available for comparison');
+        return [];
+      }
+      return coins.slice(0, 3).filter(coin => coin != null);
+    } catch (error) {
+      console.error('[CoinsListScreen] Error in comparisonCoins:', error);
+      return [];
+    }
+  }, [coins]);
 
   const handleClearSearch = () => {
     setSearchQuery('');
   };
 
-  const handleToggleFavorite = (coinId: string) => {
-    setFavorites((prev) =>
-      prev.includes(coinId)
-        ? prev.filter((id) => id !== coinId)
-        : [...prev, coinId]
-    );
+  const handleCoinChange = (index: number, coinId: string) => {
+    console.log(`Change coin at index ${index} to ${coinId}`);
   };
-
-  const filteredCoins = useMemo(() => {
-    if (!searchQuery.trim()) return mockCoins;
-    const query = searchQuery.toLowerCase();
-    return mockCoins.filter(
-      (coin) =>
-        coin.name.toLowerCase().includes(query) ||
-        coin.symbol.toLowerCase().includes(query)
-    );
-  }, [searchQuery]);
 
   return (
     <GradientBackground>
@@ -52,37 +99,15 @@ export default function CoinsListScreen() {
           style={styles.scrollView}
           contentContainerStyle={styles.scrollContent}
           showsVerticalScrollIndicator={false}
+          refreshControl={
+            <RefreshControl
+              refreshing={isRefreshing}
+              onRefresh={refresh}
+              tintColor={Colors.dark.primary}
+            />
+          }
         >
-          <View style={styles.heroSection}>
-            <View style={styles.imageContainer}>
-              <View style={styles.imageRing}>
-                <Image
-                  source={require('@/assets/imgs/nft-mokey.jpg')}
-                  style={styles.nftImage}
-                  contentFit="cover"
-                  cachePolicy="memory"
-                />
-              </View>
-            </View>
-
-            <View style={styles.rightSection}>
-              <TouchableOpacity 
-                onPress={handleFavoritesPress}
-                style={styles.favoritesButton}
-                hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
-              >
-                <Ionicons 
-                  name="heart" 
-                  size={24} 
-                  color={Colors.dark.accent} 
-                />
-              </TouchableOpacity>
-
-              <View style={styles.networkIndicator}>
-                <View style={[styles.networkDot, { backgroundColor: Colors.dark.success }]} />
-              </View>
-            </View>
-          </View>
+          <HomeHero />
 
           <SearchBar
             value={searchQuery}
@@ -91,33 +116,26 @@ export default function CoinsListScreen() {
             placeholder="Search coins..."
           />
 
-          <TrendingList trendingCoins={mockTrendingCoins} />
-
-          <View style={styles.comparisonSection}>
-            <CoinComparisonSelector 
-              coins={mockCoins.slice(0, 3)}
-              allCoins={mockCoins}
-              onCoinChange={(index, coinId) => {
-                // TODO: Implement coin change logic with API
-                // This will call: getCoinsMarkets({ ids: 'bitcoin,ethereum,solana' })
-                console.log(`Change coin at index ${index} to ${coinId}`);
-              }}
+          {loading && coins.length === 0 ? (
+            <LoadingState count={20} />
+            // <View></View>
+          ) : error && coins.length === 0 ? (
+            <ErrorState message={error} onRetry={refresh} />  
+            // <View></View>
+          ) : (
+            <HomeContent
+              coins={coins}
+              trending={safeTrending}
+              filteredCoins={filteredCoins}
+              comparisonCoins={comparisonCoins}
+              searchQuery={searchQuery}
+              loading={loading}
+              isFavorite={isFavorite}
+              onToggleFavorite={toggleFavorite}
+              onCoinChange={handleCoinChange}
             />
-          </View>
-
-          <View style={styles.coinsListSection}>
-            <ThemedText type="subtitle" style={styles.sectionTitle}>
-              All Coins
-            </ThemedText>
-            {filteredCoins.map((coin) => (
-              <CoinCard
-                key={coin.id}
-                coin={coin}
-                isFavorite={favorites.includes(coin.id)}
-                onToggleFavorite={handleToggleFavorite}
-              />
-            ))}
-          </View>
+            // <View></View>
+          )}
         </ScrollView>
 
         <ToastContainer />
@@ -135,64 +153,5 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom: Spacing.xl,
-  },
-  heroSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    paddingHorizontal: Spacing.lg,
-    paddingVertical: Spacing.xl,
-  },
-  imageContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  imageRing: {
-    width: 80,
-    height: 80,
-    borderRadius: BorderRadius.full,
-    padding: 3,
-    backgroundColor: Colors.dark.primary,
-    borderWidth: 2,
-    borderColor: Colors.dark.accent,
-    shadowColor: Colors.dark.accent,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 15,
-    elevation: 8,
-  },
-  nftImage: {
-    width: '100%',
-    height: '100%',
-    borderRadius: BorderRadius.full,
-  },
-  rightSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: Spacing.md,
-  },
-  favoritesButton: {
-    padding: Spacing.sm,
-  },
-  networkIndicator: {
-    padding: Spacing.sm,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  networkDot: {
-    width: 12,
-    height: 12,
-    borderRadius: BorderRadius.full,
-  },
-  comparisonSection: {
-    // paddingHorizontal: Spacing.md,
-    paddingVertical: Spacing.lg,
-  },
-  coinsListSection: {
-    paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.lg,
-  },
-  sectionTitle: {
-    marginBottom: Spacing.md,
   },
 });

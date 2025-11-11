@@ -2,15 +2,29 @@ import { ThemedText } from '@/components/themed-text';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Colors, Spacing } from '@/constants/theme';
 import { Coin } from '@/schema/coin';
+import { mockCoins } from '@/utils/mock-data';
 import { formatDate, formatPercentage, formatPrice } from '@/utils/formatters';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 interface CoinHighLowProps {
-  coin: Coin;
+  coin: Coin | null | undefined;
 }
 
 export function CoinHighLow({ coin }: CoinHighLowProps) {
+  let safeCoin: Coin;
+  try {
+    if (!coin) {
+      console.warn('[CoinHighLow] Coin data is missing, falling back to mock data');
+      safeCoin = mockCoins[0];
+    } else {
+      safeCoin = coin;
+    }
+  } catch (error) {
+    console.error('[CoinHighLow] Error processing coin data:', error);
+    safeCoin = mockCoins[0];
+  }
+
   return (
     <GlassCard style={styles.highLowCard}>
       <ThemedText type="subtitle" style={styles.sectionTitle}>
@@ -21,14 +35,14 @@ export function CoinHighLow({ coin }: CoinHighLowProps) {
         <View style={styles.highLowItem}>
           <ThemedText style={styles.highLowLabel}>All-Time High</ThemedText>
           <ThemedText type="defaultSemiBold" style={styles.highLowValue}>
-            {formatPrice(coin.ath)}
+            {formatPrice(safeCoin?.ath ?? 0)}
           </ThemedText>
           <ThemedText style={[styles.highLowChange, { color: Colors.dark.error }]}>
-            {formatPercentage(coin.ath_change_percentage)}
+            {formatPercentage(safeCoin?.ath_change_percentage ?? 0)}
           </ThemedText>
-          {coin.ath_date && (
+          {safeCoin?.ath_date && (
             <ThemedText style={styles.highLowDate}>
-              {formatDate(coin.ath_date)}
+              {formatDate(safeCoin.ath_date)}
             </ThemedText>
           )}
         </View>
@@ -38,14 +52,14 @@ export function CoinHighLow({ coin }: CoinHighLowProps) {
         <View style={styles.highLowItem}>
           <ThemedText style={styles.highLowLabel}>All-Time Low</ThemedText>
           <ThemedText type="defaultSemiBold" style={styles.highLowValue}>
-            {formatPrice(coin.atl)}
+            {formatPrice(safeCoin?.atl ?? 0)}
           </ThemedText>
           <ThemedText style={[styles.highLowChange, { color: Colors.dark.success }]}>
-            {formatPercentage(coin.atl_change_percentage)}
+            {formatPercentage(safeCoin?.atl_change_percentage ?? 0)}
           </ThemedText>
-          {coin.atl_date && (
+          {safeCoin?.atl_date && (
             <ThemedText style={styles.highLowDate}>
-              {formatDate(coin.atl_date)}
+              {formatDate(safeCoin.atl_date)}
             </ThemedText>
           )}
         </View>

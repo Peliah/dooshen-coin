@@ -7,6 +7,7 @@ import { useEffect } from 'react';
 import 'react-native-reanimated';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useNetworkStatus } from '@/hooks/use-network-status';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -16,6 +17,7 @@ export const unstable_settings = {
 
 export default function RootLayout() {
   const colorScheme = useColorScheme();
+  useNetworkStatus();
   
   const [fontsLoaded, fontError] = useFonts({
     'Rosefana': require('@/assets/fonts/Rosefana.otf'),
