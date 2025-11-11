@@ -2,7 +2,6 @@ import { ThemedText } from '@/components/themed-text';
 import { GlassCard } from '@/components/ui/glass-card';
 import { BorderRadius, Colors, Spacing } from '@/constants/theme';
 import { MarketChartData } from '@/schema/coin';
-import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
