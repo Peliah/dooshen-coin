@@ -1,18 +1,19 @@
 import { ThemedText } from '@/components/themed-text';
 import { GlassCard } from '@/components/ui/glass-card';
 import { Colors, Spacing } from '@/constants/theme';
-import { Coin } from '@/schema/coin';
-import { mockCoins } from '@/utils/mock-data';
+import { Coin, CoinDetails } from '@/schema/coin';
+import { getCoinCirculatingSupply, getCoinMarketCap, getCoinMarketCapRank, getCoinMaxSupply, getCoinVolume } from '@/utils/coin-helpers';
 import { formatLargeNumber, formatSupply } from '@/utils/formatters';
+import { mockCoins } from '@/utils/mock-data';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 interface CoinMarketStatsProps {
-  coin: Coin | null | undefined;
+  coin: Coin | CoinDetails | null | undefined;
 }
 
 export function CoinMarketStats({ coin }: CoinMarketStatsProps) {
-  let safeCoin: Coin;
+  let safeCoin: Coin | CoinDetails;
   try {
     if (!coin) {
       console.warn('[CoinMarketStats] Coin data is missing, falling back to mock data');
@@ -25,6 +26,12 @@ export function CoinMarketStats({ coin }: CoinMarketStatsProps) {
     safeCoin = mockCoins[0];
   }
 
+  const marketCap = getCoinMarketCap(safeCoin);
+  const volume = getCoinVolume(safeCoin);
+  const circulatingSupply = getCoinCirculatingSupply(safeCoin);
+  const maxSupply = getCoinMaxSupply(safeCoin);
+  const marketCapRank = getCoinMarketCapRank(safeCoin);
+
   return (
     <GlassCard style={styles.statsCard}>
       <ThemedText type="subtitle" style={styles.sectionTitle}>
@@ -34,29 +41,29 @@ export function CoinMarketStats({ coin }: CoinMarketStatsProps) {
       <View style={styles.statRow}>
         <ThemedText style={styles.statLabel}>Market Cap</ThemedText>
         <ThemedText type="defaultSemiBold" style={styles.statValue}>
-          {formatLargeNumber(safeCoin?.market_cap ?? 0)}
+          {formatLargeNumber(marketCap)}
         </ThemedText>
       </View>
 
       <View style={styles.statRow}>
         <ThemedText style={styles.statLabel}>24h Volume</ThemedText>
         <ThemedText type="defaultSemiBold" style={styles.statValue}>
-          {formatLargeNumber(safeCoin?.total_volume ?? 0)}
+          {formatLargeNumber(volume)}
         </ThemedText>
       </View>
 
       <View style={styles.statRow}>
         <ThemedText style={styles.statLabel}>Circulating Supply</ThemedText>
         <ThemedText type="defaultSemiBold" style={styles.statValue}>
-          {formatSupply(safeCoin?.circulating_supply ?? 0)}
+          {formatSupply(circulatingSupply)}
         </ThemedText>
       </View>
 
-      {safeCoin?.max_supply && (
+      {maxSupply && (
         <View style={styles.statRow}>
           <ThemedText style={styles.statLabel}>Max Supply</ThemedText>
           <ThemedText type="defaultSemiBold" style={styles.statValue}>
-            {formatSupply(safeCoin.max_supply)}
+            {formatSupply(maxSupply)}
           </ThemedText>
         </View>
       )}
@@ -64,7 +71,7 @@ export function CoinMarketStats({ coin }: CoinMarketStatsProps) {
       <View style={styles.statRow}>
         <ThemedText style={styles.statLabel}>Market Cap Rank</ThemedText>
         <ThemedText type="defaultSemiBold" style={styles.statValue}>
-          #{safeCoin?.market_cap_rank ?? 'N/A'}
+          #{marketCapRank ?? 'N/A'}
         </ThemedText>
       </View>
     </GlassCard>

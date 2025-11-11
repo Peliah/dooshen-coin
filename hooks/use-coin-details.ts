@@ -11,7 +11,6 @@ export function useCoinDetails(coinId: string) {
   const loading = useCoinDetailsStore((state) => state.getLoading(coinId));
   const error = useCoinDetailsStore((state) => state.getError(coinId));
   const isCached = useCoinDetailsStore((state) => state.isDetailsCached(coinId));
-  const isStale = useCoinDetailsStore((state) => state.isDetailsStale(coinId));
   
   const setCoinDetails = useCoinDetailsStore((state) => state.setCoinDetails);
   const setLoading = useCoinDetailsStore((state) => state.setLoading);
@@ -91,15 +90,18 @@ export function useCoinDetails(coinId: string) {
     if (!coinId) return;
 
     const initialize = async () => {
+      setLoading(coinId, true);
       await loadCachedData();
       
-      if (isOnline && (!isCached || isStale)) {
+      if (isOnline) {
         await fetchDetails();
+      } else {
+        setLoading(coinId, false);
       }
     };
 
     initialize();
-  }, [coinId, isOnline, isCached, isStale, loadCachedData, fetchDetails]);
+  }, [coinId, isOnline, loadCachedData, fetchDetails, setLoading]);
 
   const refresh = useCallback(() => {
     if (isOnline) {

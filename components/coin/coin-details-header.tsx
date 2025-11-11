@@ -1,6 +1,7 @@
 import { ThemedText } from '@/components/themed-text';
 import { BorderRadius, Colors, Spacing } from '@/constants/theme';
-import { Coin } from '@/schema/coin';
+import { Coin, CoinDetails } from '@/schema/coin';
+import { getCoinImageThumb } from '@/utils/coin-helpers';
 import { mockCoins } from '@/utils/mock-data';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -9,7 +10,7 @@ import React from 'react';
 import { StyleSheet, TouchableOpacity, View } from 'react-native';
 
 interface CoinDetailsHeaderProps {
-  coin: Coin | null | undefined;
+  coin: Coin | CoinDetails | null | undefined;
   isFavorite: boolean;
   onToggleFavorite: () => void;
 }
@@ -17,7 +18,7 @@ interface CoinDetailsHeaderProps {
 export function CoinDetailsHeader({ coin, isFavorite, onToggleFavorite }: CoinDetailsHeaderProps) {
   const router = useRouter();
 
-  let safeCoin: Coin;
+  let safeCoin: Coin | CoinDetails;
   try {
     if (!coin) {
       console.warn('[CoinDetailsHeader] Coin data is missing, falling back to mock data');
@@ -44,16 +45,23 @@ export function CoinDetailsHeader({ coin, isFavorite, onToggleFavorite }: CoinDe
         <Ionicons name="arrow-back" size={24} color={Colors.dark.text} />
       </TouchableOpacity>
       <View style={styles.headerCenter}>
-        <Image
-          source={{ uri: safeCoin?.image || mockCoins[0].image }}
-          style={styles.headerImage}
-          contentFit="contain"
-          cachePolicy="memory"
-          recyclingKey={safeCoin?.id || 'fallback'}
-          onError={(error) => {
-            console.error('[CoinDetailsHeader] Image load error:', error);
-          }}
-        />
+        {(() => {
+          const imageUrl = getCoinImageThumb(safeCoin);
+          return imageUrl ? (
+            <Image
+              source={{ uri: imageUrl }}
+              style={styles.headerImage}
+              contentFit="contain"
+              cachePolicy="memory"
+              recyclingKey={safeCoin.id || 'fallback'}
+              onError={(error) => {
+                console.error('[CoinDetailsHeader] Image load error:', error);
+              }}
+            />
+          ) : (
+            <View style={[styles.headerImage, { backgroundColor: Colors.dark.textSecondary, opacity: 0.3 }]} />
+          );
+        })()}
         <View style={styles.headerText}>
           <ThemedText type="defaultSemiBold" style={styles.headerName}>
             {safeCoin?.name || 'Unknown Coin'}

@@ -55,18 +55,22 @@ export function TrendingCard({ trendingCoin }: TrendingCardProps) {
               style={styles.trendIcon}
             />
           </View>
-          <Image
-            source={{ uri: item?.thumb || mockTrendingCoins[0].item.thumb }}
-            style={styles.coinImage}
-            contentFit="contain"
-            transition={200}
-            cachePolicy="memory"
-            recyclingKey={item?.id || 'fallback'}
-            priority="normal"
-            onError={(error) => {
-              console.error('[TrendingCard] Image load error:', error);
-            }}
-          />
+          {item?.thumb ? (
+            <Image
+              source={{ uri: item.thumb }}
+              style={styles.coinImage}
+              contentFit="contain"
+              transition={200}
+              cachePolicy="memory"
+              recyclingKey={item.id || 'fallback'}
+              priority="normal"
+              onError={(error) => {
+                console.error('[TrendingCard] Image load error:', error);
+              }}
+            />
+          ) : (
+            <View style={[styles.coinImage, { backgroundColor: Colors.dark.textSecondary, opacity: 0.3 }]} />
+          )}
           <View style={styles.coinInfo}>
             <ThemedText type="defaultSemiBold" style={styles.coinName} numberOfLines={1}>
               {item?.name || 'Unknown Coin'}

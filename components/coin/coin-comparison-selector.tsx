@@ -3,6 +3,7 @@ import { GlassCard } from '@/components/ui/glass-card';
 import { SearchBar } from '@/components/ui/search-bar';
 import { BorderRadius, Colors, Spacing } from '@/constants/theme';
 import { Coin } from '@/schema/coin';
+import { getCoinImageUrl } from '@/utils/coin-helpers';
 import { formatPercentage, formatPrice, getPercentageColor } from '@/utils/formatters';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -128,16 +129,23 @@ export function CoinComparisonSelector({
           onPress={() => handleSelectCoin(coin)}
           style={styles.coinOption}
         >
-          <Image
-            source={{ uri: coin.image || '' }}
-            style={styles.coinOptionImage}
-            contentFit="contain"
-            cachePolicy="memory"
-            recyclingKey={coin.id}
-            onError={(error) => {
-              console.error('[CoinComparisonSelector] Image load error:', error);
-            }}
-          />
+          {(() => {
+            const imageUrl = getCoinImageUrl(coin);
+            return imageUrl ? (
+              <Image
+                source={{ uri: imageUrl }}
+                style={styles.coinOptionImage}
+                contentFit="contain"
+                cachePolicy="memory"
+                recyclingKey={coin.id}
+                onError={(error) => {
+                  console.error('[CoinComparisonSelector] Image load error:', error);
+                }}
+              />
+            ) : (
+              <View style={[styles.coinOptionImage, { backgroundColor: Colors.dark.textSecondary, opacity: 0.3 }]} />
+            );
+          })()}
           <View style={styles.coinOptionInfo}>
             <ThemedText type="defaultSemiBold" style={styles.coinOptionName}>
               {coin.name || 'Unknown Coin'}
@@ -204,16 +212,23 @@ export function CoinComparisonSelector({
 
                   <View style={styles.cardContent}>
                     <View style={styles.coinHeader}>
-                      <Image
-                        source={{ uri: coin.image || '' }}
-                        style={styles.coinImage}
-                        contentFit="contain"
-                        cachePolicy="memory"
-                        recyclingKey={coin.id}
-                        onError={(error) => {
-                          console.error('[CoinComparisonSelector] Image load error:', error);
-                        }}
-                      />
+                      {(() => {
+                        const imageUrl = getCoinImageUrl(coin);
+                        return imageUrl ? (
+                          <Image
+                            source={{ uri: imageUrl }}
+                            style={styles.coinImage}
+                            contentFit="contain"
+                            cachePolicy="memory"
+                            recyclingKey={coin.id}
+                            onError={(error) => {
+                              console.error('[CoinComparisonSelector] Image load error:', error);
+                            }}
+                          />
+                        ) : (
+                          <View style={[styles.coinImage, { backgroundColor: Colors.dark.textSecondary, opacity: 0.3 }]} />
+                        );
+                      })()}
                       <View style={styles.coinHeaderText}>
                         <ThemedText type="defaultSemiBold" style={styles.coinName} numberOfLines={1}>
                           {coin.name || 'Unknown Coin'}

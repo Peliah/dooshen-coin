@@ -1,19 +1,20 @@
 import { ThemedText } from '@/components/themed-text';
 import { GlassCard } from '@/components/ui/glass-card';
-import { Colors, Spacing } from '@/constants/theme';
-import { Coin } from '@/schema/coin';
-import { mockCoins } from '@/utils/mock-data';
+import { Spacing } from '@/constants/theme';
+import { Coin, CoinDetails } from '@/schema/coin';
+import { getCoinPrice, getCoinPriceChange24h, getCoinPriceChangePercentage24h } from '@/utils/coin-helpers';
 import { formatPercentage, formatPrice, getPercentageColor } from '@/utils/formatters';
+import { mockCoins } from '@/utils/mock-data';
 import { Ionicons } from '@expo/vector-icons';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 interface CoinPriceSectionProps {
-  coin: Coin | null | undefined;
+  coin: Coin | CoinDetails | null | undefined;
 }
 
 export function CoinPriceSection({ coin }: CoinPriceSectionProps) {
-  let safeCoin: Coin;
+  let safeCoin: Coin | CoinDetails;
   try {
     if (!coin) {
       console.warn('[CoinPriceSection] Coin data is missing, falling back to mock data');
@@ -26,9 +27,9 @@ export function CoinPriceSection({ coin }: CoinPriceSectionProps) {
     safeCoin = mockCoins[0];
   }
 
-  const priceChange = safeCoin?.price_change_percentage_24h ?? 0;
-  const priceChange24h = safeCoin?.price_change_24h ?? 0;
-  const currentPrice = safeCoin?.current_price ?? 0;
+  const priceChange = getCoinPriceChangePercentage24h(safeCoin);
+  const priceChange24h = getCoinPriceChange24h(safeCoin);
+  const currentPrice = getCoinPrice(safeCoin);
 
   return (
     <GlassCard style={styles.priceCard}>

@@ -7,6 +7,7 @@ import { ThemedText } from '@/components/themed-text';
 import { GlassCard } from '@/components/ui/glass-card';
 import { BorderRadius, Colors, Spacing } from '@/constants/theme';
 import { Coin } from '@/schema/coin';
+import { getCoinImageUrl } from '@/utils/coin-helpers';
 import { formatLargeNumber, formatPercentage, formatPrice, getPercentageColor } from '@/utils/formatters';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
@@ -57,13 +58,20 @@ export function CoinComparison({ coins, maxCoins = 3 }: CoinComparisonProps) {
               <View style={styles.cardContent}>
                 {/* Coin Header */}
                 <View style={styles.coinHeader}>
-                  <Image
-                    source={{ uri: coin.image }}
-                    style={styles.coinImage}
-                    contentFit="contain"
-                    cachePolicy="memory"
-                    recyclingKey={coin.id}
-                  />
+                  {(() => {
+                    const imageUrl = getCoinImageUrl(coin);
+                    return imageUrl ? (
+                      <Image
+                        source={{ uri: imageUrl }}
+                        style={styles.coinImage}
+                        contentFit="contain"
+                        cachePolicy="memory"
+                        recyclingKey={coin.id}
+                      />
+                    ) : (
+                      <View style={[styles.coinImage, { backgroundColor: Colors.dark.textSecondary, opacity: 0.3 }]} />
+                    );
+                  })()}
                   <View style={styles.coinHeaderText}>
                     <ThemedText type="defaultSemiBold" style={styles.coinName}>
                       {coin.name}

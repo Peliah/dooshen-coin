@@ -34,7 +34,14 @@ export interface Coin {
   last_updated?: string;
 }
 
-export interface CoinDetails extends Coin {
+export interface CoinImage {
+  thumb: string;
+  small: string;
+  large: string;
+}
+
+export interface CoinDetails extends Omit<Coin, 'image' | 'current_price' | 'market_cap' | 'total_volume' | 'high_24h' | 'low_24h' | 'price_change_24h' | 'price_change_percentage_24h' | 'market_cap_change_24h' | 'market_cap_change_percentage_24h' | 'ath' | 'ath_change_percentage' | 'ath_date' | 'atl' | 'atl_change_percentage' | 'atl_date' | 'fully_diluted_valuation'> {
+  image: CoinImage;
   description?: {
     en: string;
   };
@@ -48,11 +55,11 @@ export interface CoinDetails extends Coin {
     };
   };
   market_data?: {
-    current_price: { usd: number };
-    market_cap: { usd: number };
-    total_volume: { usd: number };
-    high_24h: { usd: number };
-    low_24h: { usd: number };
+    current_price: Record<string, number>;
+    market_cap: Record<string, number>;
+    total_volume: Record<string, number>;
+    high_24h: Record<string, number>;
+    low_24h: Record<string, number>;
     price_change_24h: number;
     price_change_percentage_24h: number;
     market_cap_change_24h: number;
@@ -60,13 +67,15 @@ export interface CoinDetails extends Coin {
     circulating_supply: number;
     total_supply: number;
     max_supply: number;
-    ath: { usd: number };
-    ath_change_percentage: { usd: number };
-    ath_date: { usd: string };
-    atl: { usd: number };
-    atl_change_percentage: { usd: number };
-    atl_date: { usd: string };
-    fully_diluted_valuation: { usd: number };
+    ath: Record<string, number>;
+    ath_change_percentage: Record<string, number>;
+    ath_date: Record<string, string>;
+    atl: Record<string, number>;
+    atl_change_percentage: Record<string, number>;
+    atl_date: Record<string, string>;
+    fully_diluted_valuation: Record<string, number>;
+    market_cap_rank: number;
+    last_updated: string;
   };
 }
 

@@ -6,8 +6,9 @@ import { ThemedText } from '@/components/themed-text';
 import { GlassCard } from '@/components/ui/glass-card';
 import { BorderRadius, Colors, Spacing } from '@/constants/theme';
 import { Coin } from '@/schema/coin';
-import { mockCoins } from '@/utils/mock-data';
+import { getCoinImageUrl } from '@/utils/coin-helpers';
 import { formatPercentage, formatPrice, getPercentageColor } from '@/utils/formatters';
+import { mockCoins } from '@/utils/mock-data';
 import { Ionicons } from '@expo/vector-icons';
 import { Image } from 'expo-image';
 import { useRouter } from 'expo-router';
@@ -70,18 +71,25 @@ export function CoinCard({ coin, isFavorite = false, onToggleFavorite }: CoinCar
         <View style={styles.content}>
           {/* Coin Info Section */}
           <View style={styles.coinInfo}>
-            <Image 
-              source={{ uri: safeCoin?.image || mockCoins[0].image }} 
-              style={styles.coinImage}
-              contentFit="contain"
-              transition={200}
-              cachePolicy="memory"
-              recyclingKey={safeCoin?.id || 'fallback'}
-              priority="normal"
-              onError={(error) => {
-                console.error('[CoinCard] Image load error:', error);
-              }}
-            />
+            {(() => {
+              const imageUrl = getCoinImageUrl(safeCoin);
+              return imageUrl ? (
+                <Image 
+                  source={{ uri: imageUrl }} 
+                  style={styles.coinImage}
+                  contentFit="contain"
+                  transition={200}
+                  cachePolicy="memory"
+                  recyclingKey={safeCoin.id || 'fallback'}
+                  priority="normal"
+                  onError={(error) => {
+                    console.error('[CoinCard] Image load error:', error);
+                  }}
+                />
+              ) : (
+                <View style={[styles.coinImage, { backgroundColor: Colors.dark.textSecondary, opacity: 0.3 }]} />
+              );
+            })()}
             <View style={styles.coinDetails}>
               <ThemedText type="defaultSemiBold" style={styles.coinName}>
                 {safeCoin?.name || 'Unknown Coin'}

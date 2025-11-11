@@ -31,7 +31,6 @@ export function useCoinChart(coinId: string, timeRange: TimeRange) {
   const loading = useCoinDetailsStore((state) => state.getLoading(coinId));
   const error = useCoinDetailsStore((state) => state.getError(coinId));
   const isCached = useCoinDetailsStore((state) => state.isChartCached(coinId, timeRange));
-  const isStale = useCoinDetailsStore((state) => state.isChartStale(coinId, timeRange));
   
   const setChartData = useCoinDetailsStore((state) => state.setChartData);
   const setLoading = useCoinDetailsStore((state) => state.setLoading);
@@ -119,15 +118,18 @@ export function useCoinChart(coinId: string, timeRange: TimeRange) {
     if (!coinId) return;
 
     const initialize = async () => {
+      setLoading(coinId, true);
       await loadCachedData();
       
-      if (isOnline && (!isCached || isStale)) {
+      if (isOnline) {
         await fetchChart();
+      } else {
+        setLoading(coinId, false);
       }
     };
 
     initialize();
-  }, [coinId, timeRange, isOnline, isCached, isStale, loadCachedData, fetchChart]);
+  }, [coinId, timeRange, isOnline, loadCachedData, fetchChart, setLoading]);
 
   const refresh = useCallback(() => {
     if (isOnline) {
