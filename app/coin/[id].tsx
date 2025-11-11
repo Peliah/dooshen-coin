@@ -12,8 +12,8 @@ import { Colors, Spacing } from '@/constants/theme';
 import { useCoinChart } from '@/hooks/use-coin-chart';
 import { useCoinDetails } from '@/hooks/use-coin-details';
 import { useFavorites } from '@/hooks/use-favorites';
-import { useLocalSearchParams } from 'expo-router';
-import React, { useState } from 'react';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import React, { useCallback, useState } from 'react';
 import { RefreshControl, ScrollView, StyleSheet, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
@@ -24,6 +24,15 @@ export default function CoinDetailsScreen() {
   const { details, loading, error, refresh } = useCoinDetails(id || '');
   const { chartData, loading: chartLoading, refresh: refreshChart } = useCoinChart(id || '', selectedTimeRange);
   const { isFavorite, toggleFavorite } = useFavorites();
+
+  useFocusEffect(
+    useCallback(() => {
+      if (id) {
+        refresh();
+        refreshChart();
+      }
+    }, [id, refresh, refreshChart])
+  );
 
   const coin = details;
 
