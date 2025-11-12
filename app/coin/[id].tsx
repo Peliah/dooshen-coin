@@ -33,7 +33,9 @@ export default function CoinDetailsScreen() {
       }
     }, [id, refresh, refreshChart])
   );
-
+  // console.log(selectedTimeRange);
+  
+  // console.log(chartData)
   const coin = details;
 
   if (loading && !coin) {
